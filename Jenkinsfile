@@ -19,17 +19,23 @@ pipeline {
 
           for (service in services) {
             echo "🚧 Building and pushing Docker image for ${service}..."
-
-            // Build the Docker image
             def image = docker.build("${DOCKERHUB_USER}/${service}", "${service}")
 
-            // Push image to Docker Hub
             docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
               image.push("latest")
             }
 
             echo "✅ Successfully pushed ${DOCKERHUB_USER}/${service}:latest to Docker Hub"
           }
+        }
+      }
+    }
+
+    stage('Deploy with Ansible') {
+      steps {
+        script {
+          echo '🚀 Deploying containers using Ansible...'
+          sh 'ansible-playbook /var/jenkins_home/workspace/ecommerce-devops-pipeline/deploy.yml'
         }
       }
     }
@@ -43,7 +49,7 @@ pipeline {
 
   post {
     success {
-      echo '🎉 All microservice images built and pushed successfully!'
+      echo '🎉 Pipeline completed successfully with Ansible deployment!'
     }
     failure {
       echo '❌ Pipeline failed. Check logs for details.'
