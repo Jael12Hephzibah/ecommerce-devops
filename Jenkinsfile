@@ -17,7 +17,8 @@ pipeline {
       steps {
         script {
           echo 'Building Docker image for product-service...'
-          dockerImage = docker.build("${IMAGE_NAME}")
+          dockerImage = docker.build("${IMAGE_NAME}", "product-service")
+
         }
       }
     }
