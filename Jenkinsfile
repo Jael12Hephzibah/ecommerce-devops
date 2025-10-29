@@ -42,14 +42,23 @@ pipeline {
 
     stage('Test') {
       steps {
-        echo 'Running basic tests...'
+        echo '🧪 Running basic tests...'
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
+      steps {
+        script {
+          echo '☸️ Deploying microservices to Kubernetes...'
+          sh 'kubectl apply -f k8s/'
+        }
       }
     }
   }
 
   post {
     success {
-      echo '🎉 Pipeline completed successfully with Ansible deployment!'
+      echo '🎉 Pipeline completed successfully with Docker, Ansible, and Kubernetes!'
     }
     failure {
       echo '❌ Pipeline failed. Check logs for details.'
