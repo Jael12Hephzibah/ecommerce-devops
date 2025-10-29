@@ -1,0 +1,25 @@
+---
+- name: Deploy E-commerce Microservices
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Pull product-service image
+      command: docker pull jaelheph/product-service:latest
+
+    - name: Run product-service container
+      command: docker run -d -p 3001:3000 --name product-service jaelheph/product-service:latest
+      ignore_errors: yes
+
+    - name: Pull order-service image
+      command: docker pull jaelheph/order-service:latest
+
+    - name: Run order-service container
+      command: docker run -d -p 3002:3000 --name order-service jaelheph/order-service:latest
+      ignore_errors: yes
+
+    - name: Pull cart-service image
+      command: docker pull jaelheph/cart-service:latest
+
+    - name: Run cart-service container
+      command: docker run -d -p 3003:3000 --name cart-service jaelheph/cart-service:latest
+      ignore_errors: yes
