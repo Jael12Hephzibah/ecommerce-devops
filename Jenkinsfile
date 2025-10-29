@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-    IMAGE_NAME = 'jaelheph/product-service'
+    DOCKERHUB_USER = 'jaelheph' // Your Docker Hub username
   }
 
   stages {
@@ -13,12 +13,24 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build and Push Images') {
       steps {
         script {
-          echo 'Building Docker image for product-service...'
-          dockerImage = docker.build("${IMAGE_NAME}", "product-service")
+          def services = ['product-service', 'order-service', 'cart-service']
 
+          for (service in services) {
+            echo "🚧 Building and pushing Docker image for ${service}..."
+
+            // Build Docker image
+            def image = docker.build("${DOCKERHUB_USER}/${service}", "${service}")
+
+            // Push image to Docker Hub
+            docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+              image.push("latest")
+            }
+
+            echo "✅ Successfully pushed ${DOCKERHUB_USER}/${service}:latest to Docker Hub"
+          }
         }
       }
     }
@@ -28,25 +40,14 @@ pipeline {
         echo 'Running basic tests...'
       }
     }
-
-    stage('Push to Docker Hub') {
-      steps {
-        script {
-          echo 'Pushing Docker image to Docker Hub...'
-          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
-            dockerImage.push("latest")
-          }
-        }
-      }
-    }
   }
 
   post {
     success {
-      echo '✅ Pipeline completed successfully and image pushed to Docker Hub!'
+      echo '🎉 All microservice images built and pushed successfully!'
     }
     failure {
-      echo '❌ Pipeline failed! Check logs for details.'
+      echo '❌ Pipeline failed. Check logs for details.'
     }
   }
 }
