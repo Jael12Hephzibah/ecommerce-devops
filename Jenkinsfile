@@ -1,6 +1,11 @@
 pipeline {
   agent any
 
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+    IMAGE_NAME = 'jaelhephzibah/product-service'
+  }
+
   stages {
     stage('Checkout Code') {
       steps {
@@ -12,7 +17,7 @@ pipeline {
       steps {
         script {
           echo 'Building Docker image for product-service...'
-          docker.build('jaelhephzibah/product-service')
+          dockerImage = docker.build("${IMAGE_NAME}")
         }
       }
     }
@@ -25,17 +30,22 @@ pipeline {
 
     stage('Push to Docker Hub') {
       steps {
-        echo 'Docker push will be added after credentials setup.'
+        script {
+          echo 'Pushing Docker image to Docker Hub...'
+          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
+            dockerImage.push("latest")
+          }
+        }
       }
     }
   }
 
   post {
     success {
-      echo 'Pipeline completed successfully 🎉'
+      echo '✅ Pipeline completed successfully and image pushed to Docker Hub!'
     }
     failure {
-      echo 'Pipeline failed ❌'
+      echo '❌ Pipeline failed! Check logs for details.'
     }
   }
 }
