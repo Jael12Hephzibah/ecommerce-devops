@@ -2,8 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-    DOCKERHUB_USER = 'jaelheph' // Your Docker Hub username
+    DOCKERHUB_USER = 'jaelheph' // Docker Hub username
   }
 
   stages {
@@ -21,11 +20,11 @@ pipeline {
           for (service in services) {
             echo "🚧 Building and pushing Docker image for ${service}..."
 
-            // Build Docker image
+            // Build the Docker image
             def image = docker.build("${DOCKERHUB_USER}/${service}", "${service}")
 
             // Push image to Docker Hub
-            docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+            docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
               image.push("latest")
             }
 
