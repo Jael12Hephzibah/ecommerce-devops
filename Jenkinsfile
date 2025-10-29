@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-    IMAGE_NAME = 'jaelhephzibah/product-service'
+    IMAGE_NAME = 'jaelheph/product-service'
   }
 
   stages {
